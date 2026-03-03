@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"reflect"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 func isValueEmpty(val interface{}) bool {
@@ -14,6 +16,10 @@ func isValueEmpty(val interface{}) bool {
 
 	if reflect.TypeOf(val).Kind() == reflect.Ptr {
 		return reflect.ValueOf(val).IsNil()
+	}
+
+	if castVal, ok := val.(decimal.Decimal); ok {
+		return castVal.IsZero()
 	}
 
 	v := reflect.ValueOf(val)
@@ -86,7 +92,7 @@ func getFieldAsString(val reflect.Value, i int) (string, error) {
 	return "", &UnSupportedType{}
 }
 
-func getFiledAsTime(val reflect.Value, i int) (time.Time, error) {
+func getFieldAsTime(val reflect.Value, i int) (time.Time, error) {
 	f := val.Field(i)
 
 	if f.Kind() == reflect.Ptr {
