@@ -175,6 +175,10 @@ func (q *influxQu) processSubStruct(
 		return nil, err
 	}
 
+	if tp == nil {
+		return timestamp, nil
+	}
+
 	return tp, nil
 }
 
