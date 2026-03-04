@@ -321,3 +321,40 @@ func Test_GenerateInfluxPoint_Stringer(t *testing.T) {
 		t.Error(e)
 	}
 }
+
+func Test_getData_TestReductor_Timestamp(t *testing.T) {
+	type Info struct {
+		CalculateAt time.Time `influxqu:"timestamp" mapstructure:"timestamp" db:"fetch_at"`
+	}
+
+	type BaseReductor struct {
+		Suffix string
+		Name   string `influxqu:"measurement"`
+		Bucket string
+	}
+
+	type TestReductor struct {
+		Info
+		BaseReductor
+	}
+
+	now := time.Now()
+	data := TestReductor{
+		Info:         Info{CalculateAt: now},
+		BaseReductor: BaseReductor{Name: "test_measurement"},
+	}
+
+	q := NewinfluxQu().(*influxQu)
+	_, _, _, _, timestamp, err := q.getData(&data, reflect.TypeOf(data))
+	if err != nil {
+		t.Fatalf("getData returned error: %v", err)
+	}
+
+	if timestamp == nil {
+		t.Fatal("expected timestamp to be set, got nil")
+	}
+
+	if !timestamp.Equal(now) {
+		t.Errorf("expected timestamp %v, got %v", now, *timestamp)
+	}
+}
