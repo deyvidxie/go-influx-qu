@@ -1,6 +1,16 @@
 package influxqu
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
+
+func escapeFluxString(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+
+	return s
+}
 
 func (q *influxQu) generateFluxQuery(
 	bucket, start, end string,
@@ -19,7 +29,7 @@ func (q *influxQu) generateFluxQuery(
 	}
 
 	for k, v := range tags {
-		query = query + "\n |> filter(fn: (r) => r[\"" + k + "\"] == \"" + v + "\")"
+		query = query + "\n |> filter(fn: (r) => r[\"" + escapeFluxString(k) + "\"] == \"" + escapeFluxString(v) + "\")"
 		cols = append(cols, k)
 	}
 
